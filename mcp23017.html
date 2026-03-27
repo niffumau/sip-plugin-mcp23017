@@ -1,0 +1,26 @@
+$def with (settings)
+$var title: MCP23017 Settings
+$var page: settings
+
+<h2>MCP23017 Settings</h2>
+
+<form action="/mcp23017-save" method="get">
+
+    <p>Board I2C Addresses (hex, e.g. 0x20):</p>
+
+    $for i, board in enumerate(settings["boards"]):
+        <div style="margin-bottom:8px;">
+            Board $i:
+            <input type="text" name="addr$i" value="${hex(board['address'])}">
+            Delete:
+            <input type="checkbox" name="del$i">
+        </div>
+
+    <hr>
+
+    Add Board:
+    <input type="text" name="newaddr" placeholder="0x23">
+
+    <br><br>
+    <input type="submit" value="Save">
+</form>
