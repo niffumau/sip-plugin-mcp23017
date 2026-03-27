@@ -1,4 +1,6 @@
 #!/bin/bash
+
+
 if [[ $(id -u) -gt 0 ]]
 then
     echo "run this command as root or sudo otherwise this script might fail"
@@ -8,7 +10,8 @@ fi
 if [ "$#" -ne 1 ]; then
 
   while true; do
-    read -p "Enter full path of your SIP installation without trailing slash: " SIPDIR
+    #read -p "Enter full path of your SIP installation without trailing slash: " SIPDIR
+    SIPDIR = "/home/niffum/SIP"
 
         if [[ $SIPDIR = "q" ]] || [[ $SIPDIR = "Q" ]] 
         then 
