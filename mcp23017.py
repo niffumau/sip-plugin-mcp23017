@@ -28,12 +28,21 @@ GPIOB  = 0x13
 OLATA  = 0x14
 OLATB  = 0x15
 
+
 def init_board(address):
-    bus.write_byte_data(address, IODIRA, 0x00)
-    bus.write_byte_data(address, IODIRB, 0x00)
-    bus.write_byte_data(address, OLATA, 0xFF)
-    bus.write_byte_data(address, OLATB, 0xFF)
-           
+    try:
+        # First set all outputs HIGH (0xFF) - relays OFF in active-low logic
+        bus.write_byte_data(address, OLATA, 0xFF)
+        bus.write_byte_data(address, OLATB, 0xFF)
+        
+        # Then set all pins as outputs (0x00)
+        bus.write_byte_data(address, IODIRA, 0x00)
+        bus.write_byte_data(address, IODIRB, 0x00)
+        
+        print(f"[MCP23017] Board at {hex(address)} initialized successfully")
+    except OSError as e:
+        print(f"[MCP23017] Error initializing board at {hex(address)}: {e}")
+
 
 def load_settings():
     global plugin_data
