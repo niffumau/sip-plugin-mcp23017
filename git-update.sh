@@ -12,7 +12,11 @@ git add -A
 if git diff --staged --quiet; then
   echo "No changes"
 else
-        commit_msg="Auto-update $(date) Commit: $(git diff --cached --name-status)"
-        git commit -m "$commit_msg"
-        git push
+	if [ $# -eq 1 ]; then
+		commit_msg="$1"
+	else
+		commit_msg="Auto-update $(date) Commit: $(git diff --cached --name-status)"
+	fi
+	git commit -m "$commit_msg"
+	git push
 fi

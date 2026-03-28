@@ -31,31 +31,26 @@ $var page: MCP23017_plugin
 
         <table class="optionList">
 
-            <!--Check boxes-->
             <thead>
                 <th class="stationNumber">$_('Board')</th>  <!--Edit: Optional-->
                 <th class="stationNumber">$_('I2C Address')</th>  <!--Edit: Optional-->
                 <th class="stationNumber">$_('Delete')</th>  <!--Edit: Optional-->
             </thead>
 
-    $for i, board in enumerate(settings["boards"]):
-        <tr>
-            <td style='text-transform: none;'>Board $i:</td>
-            <td><input type="text" name="addr$i" value="${hex(board['address'])}"></td>
-            <td><input type="checkbox" name="del$i"></td>
-        </tr>
+            $for i, board in enumerate(settings["boards"]):
+                <tr>
+                    <td style='text-transform: none;'>Board $i:</td>
+                    <td><input type="text" name="addr$i" value="${hex(board['address'])}"></td>
+                    <td><input type="checkbox" name="del$i"></td>
+                </tr>
 
 
-        </table></br>
+        </table>
+
+        <br/>
 
         <p>$_('Add Board')</p>  <!--Edit-->
         <table class="optionList">
-            <!--Text fields-->
-            <thead>
-                <th class="stationNumber">$_('Heading')</th>  <!--Edit: Optional-->
-                <th class="stationNumber">$_('Heading')</th>  <!--Edit: Optional-->
-            </thead>
-
             <tr>
                 <td style='text-transform: none;'>$_('Add Board'):</td>  <!--Edit-->
                 <td><input type="text" name="newaddr" placeholder="0x23"></td>
