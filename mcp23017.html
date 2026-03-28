@@ -34,6 +34,7 @@ $var page: MCP23017_plugin
             <thead>
                 <th class="stationNumber">$_('Board')</th>
                 <th class="stationNumber">$_('I2C Address')</th>
+                <th class="stationNumber">$_('Active Level')</th>
                 <th class="stationNumber">$_('Delete')</th>
             </thead>
 
@@ -41,6 +42,12 @@ $var page: MCP23017_plugin
                 <tr>
                     <td style='text-transform: none;'>Board $i:</td>
                     <td><input type="text" name="addr$i" value="${hex(board['address'])}"></td>
+                    <td>
+                        <select name="active$i">
+                            <option value="high" ${'selected' if board.get('active_level', 'low') == 'high' else ''}>$_('Active High')</option>
+                            <option value="low" ${'selected' if board.get('active_level', 'low') == 'low' else ''}>$_('Active Low')</option>
+                        </select>
+                    </td>
                     <td><input type="checkbox" name="del$i"></td>
                 </tr>
 
