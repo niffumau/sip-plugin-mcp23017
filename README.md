@@ -19,5 +19,9 @@ I'm new here, its my first day...
 * Possibly investigate if i want to include other I2C devices in this
 * Investigate showing which stations each thing is at
 * Investigate maybe changing which stations each device uses?
+* Need to confirm if its writing to all the boards at once even if its not required, i forget.
+
+
+
 
 
