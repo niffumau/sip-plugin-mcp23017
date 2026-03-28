@@ -2,7 +2,7 @@ Allows the SIP program to use I2C IO extender boards based on the mcp23017 Chip.
 
 This is a 16-BIT I2C expander chip.
 
-Written by niffum
+Written by Damien Clarkson (niffum)
 
 Requirements: I2C must be enabled on the Raspberry PI and smbus lib must be installed 
 
