@@ -8,7 +8,6 @@ from __future__ import print_function
 # standard library imports
 import json 		# for working with data file
 import gv		# Get access to SIP's settings
-import smbus		# Maybe this should have a check that it is available?
 import web		# web.py framework
 
 
@@ -19,10 +18,19 @@ from webpages import ProtectedPage	# Needed for security
 from urls import urls			# Get access to SIP's URLs
 
 
+#import smbus
+blockedPlugin=False
+try:
+    import smbus
+except ModuleNotFoundError:
+    blockedPlugin=True
+    pass
 
 
-bus = smbus.SMBus(1)			# The I2C Bus
 
+
+#bus = smbus.SMBus(1)			# The I2C Bus
+bus = None  # will be initialized by _make_smbus
 
 ################################################################################
 # MCP23017 Registers
@@ -36,8 +44,9 @@ OLATB = 0x15
 
 
 plugin_data = {
+    "i2c_bus": 1,
     "boards": [
-        {"address": 0x20, "active_level": "low"},
+        {"address": 0x20, "active_level": "low",}
     ]
 }
 
@@ -62,18 +71,33 @@ gv.plugin_scripts.append("mcp23017.js")
 ################################################################################
 # 
 ################################################################################
+def _make_smbus():
+    """
+    Return a global SMBus instance, using bus number from plugin_data or default 1.
+    """
+    busnum = plugin_data.get("i2c_bus", 1)   # add this key to config if needed
+    try:
+        return smbus.SMBus(busnum)
+    except Exception as e:
+        print(f"[MCP23017] Failed to create SMBus({busnum}): {e}")
+        raise
+
+################################################################################
+# 
+################################################################################
 def init_board(address, active_level="low"):
     try:
         # Set initial state based on active level
         # For active-low: HIGH (0xFF) = relays OFF
         # For active-high: LOW (0x00) = relays OFF
         initial_state = 0xFF if active_level == "low" else 0x00
-        
         bus.write_byte_data(address, OLATA, initial_state)
         bus.write_byte_data(address, OLATB, initial_state)
+
         # Then set all pins as outputs (0x00)
         bus.write_byte_data(address, IODIRA, 0x00)
         bus.write_byte_data(address, IODIRB, 0x00)
+
         print(f"[MCP23017] Board at {hex(address)} initialized successfully (active-{active_level})")
     except OSError as e:
         print(f"[MCP23017] Error initializing board at {hex(address)}: {e}")
@@ -85,27 +109,34 @@ def init_board(address, active_level="low"):
 def load_settings():
     global plugin_data
     default = {
+        "i2c_bus": 1,
         "boards": [
             {"address": 0x20, "active_level": "low"}
         ]
     }
     try:
         with open("./data/mcp23017.json") as f:
-            plugin_data = json.load(f)
-        # Ensure key exists and migrate old format
+            loaded = json.load(f)
+
+        # Start from default, then merge loaded keys in
+        plugin_data = default.copy()
+        plugin_data.update(loaded)
+        print(f"[MCP23017] loaded i2c_bus = {plugin_data.get('i2c_bus', 1)}")
+
+        # Ensure boards key exists
         if "boards" not in plugin_data:
-            plugin_data = default
-            save_settings()
-        else:
-            # Migrate boards without active_level
-            for board in plugin_data["boards"]:
-                if "active_level" not in board:
-                    board["active_level"] = "low"
-            save_settings()
+            plugin_data["boards"] = default["boards"]
+        if "i2c_bus" not in plugin_data:
+            plugin_data["i2c_bus"] = default["i2c_bus"]
+
+        # Migrate boards without active_level
+        for board in plugin_data["boards"]:
+            if "active_level" not in board:
+                board["active_level"] = "low"
+        save_settings()   # ensure migrated settings go back to disk
     except Exception:
         plugin_data = default
         save_settings()
-
 
 ################################################################################
 # Save the settings
@@ -113,6 +144,15 @@ def load_settings():
 def save_settings():
     with open("./data/mcp23017.json", "w") as f:
         json.dump(plugin_data, f)
+
+    # Re‑create global SMBus in case i2c_bus changed
+    global bus
+    try:
+        bus = _make_smbus()
+    except:
+        # If bus is broken, SIP can still load; operations will fail later.
+        pass
+
 
 
 ################################################################################
@@ -188,6 +228,14 @@ class settings(ProtectedPage):
 class save_settings_page(ProtectedPage):
     def GET(self):
         qdict = web.input()
+
+        # i2c bus from form
+        try:
+            plugin_data["i2c_bus"] = int(qdict.get("i2c_bus", "1"))
+        except (ValueError, TypeError):
+            plugin_data["i2c_bus"] = 1
+
+
         boards = []
         for key in qdict:
             if key.startswith("addr"):
@@ -227,6 +275,8 @@ class save_settings_page(ProtectedPage):
 # Initialize boards when plugin loads
 ################################################################################
 
-initialize_all_boards()
+bus = _make_smbus()	# Initialize global SMBus on module load
+
+initialize_all_boards()	# Initialize boards when plugin loads
 
 
