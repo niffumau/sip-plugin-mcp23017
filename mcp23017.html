@@ -22,13 +22,21 @@ $var page: MCP23017_plugin
 </script>
 
 <div id="plugin">
-    <div class="title">MCP23017 Plugin  <!--Edit: User page heading, Make relevant to your plugin-->
+    <div class="title">MCP23017 Plugin  
     <button class="execute" id="docButton" type="button" >$_('Help')</button>
     </div>
 
-    <p>$_('Board I2C Addresses (hex, e.g. 0x20)')</p>
-    <form id="pluginForm" action="/mcp23017-save" method="get"> <!--Edit: Replace "proto-save" with URL of plugin's class for saving settings-->
+    <form id="pluginForm" action="/mcp23017-save" method="get">
 
+        <label>I2C Bus</label>
+        <select name="i2c_bus">
+           <option value="0" ${'selected' if settings.get("i2c_bus", 1) == 0 else ''}>Bus 0</option>
+           <option value="1" ${'selected' if settings.get("i2c_bus", 1) == 1 else ''}>Bus 1</option>
+        </select>
+
+	<br/>
+
+        <p>$_('Board I2C Addresses (hex, e.g. 0x20)')</p>
         <table class="optionList">
 
             <thead>
@@ -50,13 +58,11 @@ $var page: MCP23017_plugin
                     </td>
                     <td><input type="checkbox" name="del$i"></td>
                 </tr>
-
-
         </table>
 
         <br/>
 
-        <p>$_('Add Board')</p>  <!--Edit-->
+        <p>$_('Add Board')</p>
         <table class="optionList">
             <tr>
                 <td style='text-transform: none;'>$_('Add Board'):</td>
