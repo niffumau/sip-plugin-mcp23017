@@ -32,9 +32,9 @@ $var page: MCP23017_plugin
         <table class="optionList">
 
             <thead>
-                <th class="stationNumber">$_('Board')</th>  <!--Edit: Optional-->
-                <th class="stationNumber">$_('I2C Address')</th>  <!--Edit: Optional-->
-                <th class="stationNumber">$_('Delete')</th>  <!--Edit: Optional-->
+                <th class="stationNumber">$_('Board')</th>
+                <th class="stationNumber">$_('I2C Address')</th>
+                <th class="stationNumber">$_('Delete')</th>
             </thead>
 
             $for i, board in enumerate(settings["boards"]):
@@ -52,7 +52,7 @@ $var page: MCP23017_plugin
         <p>$_('Add Board')</p>  <!--Edit-->
         <table class="optionList">
             <tr>
-                <td style='text-transform: none;'>$_('Add Board'):</td>  <!--Edit-->
+                <td style='text-transform: none;'>$_('Add Board'):</td>
                 <td><input type="text" name="newaddr" placeholder="0x23"></td>
             </tr>
 
