@@ -15,7 +15,7 @@ else
 	if [ $# -eq 1 ]; then
 		commit_msg="$1"
 	else
-		commit_msg="Auto-update $(date) Commit: $(git diff --cached --name-status)"
+		commit_msg="$(git diff --cached --name-status)"
 	fi
 	git commit -m "$commit_msg"
 	git push

@@ -1,27 +1,67 @@
-# mcp23017.py
+#!/usr/bin/env python
 # MCP23017 16-channel relay plugin for SIP
-from sip import template_render
-from webpages import ProtectedPage
-from urls import urls
-from helpers import run_program
-from blinker import signal
-import gv
-import json
-import smbus
-import web
-bus = smbus.SMBus(1)
-plugin_data = {
-    "boards": [
-        {"address": 0x20, "active_level": "low"},
-    ]
-}
+
+# Python 2/3 compatibility imports
+from __future__ import print_function
+
+
+# standard library imports
+import json 		# for working with data file
+import gv		# Get access to SIP's settings
+import smbus		# Maybe this should have a check that it is available?
+import web		# web.py framework
+
+
+# local module imports
+from blinker import signal		# Used for event signaling accross plugins and core modules?
+from sip import template_render		#  Needed for working with web.py templates
+from webpages import ProtectedPage	# Needed for security
+from urls import urls			# Get access to SIP's URLs
+
+
+
+
+bus = smbus.SMBus(1)			# The I2C Bus
+
+
+################################################################################
 # MCP23017 Registers
+################################################################################
 IODIRA = 0x00
 IODIRB = 0x01
 GPIOA = 0x12
 GPIOB = 0x13
 OLATA = 0x14
 OLATB = 0x15
+
+
+plugin_data = {
+    "boards": [
+        {"address": 0x20, "active_level": "low"},
+    ]
+}
+
+# Add new URLs to access classes in this plugin.
+urls.extend([
+    '/mcp23017', 'plugins.mcp23017.settings',
+    '/mcp23017-save', 'plugins.mcp23017.save_settings_page'
+])
+
+
+
+# Add this plugin to the PLUGINS menu ["Menu Name", "URL"], (Optional)
+gv.plugin_menu.append(['MCP23017', '/mcp23017'])
+
+
+
+# Add plugin-specific javascript that may be required for the plug-in to make arbitrary UI changes
+# This is advanced capability with lots of rope to hang yourself, for simple data display we recommend showInFooter or showInTimeline
+gv.plugin_scripts.append("mcp23017.js")
+
+
+################################################################################
+# 
+################################################################################
 def init_board(address, active_level="low"):
     try:
         # Set initial state based on active level
@@ -37,6 +77,11 @@ def init_board(address, active_level="low"):
         print(f"[MCP23017] Board at {hex(address)} initialized successfully (active-{active_level})")
     except OSError as e:
         print(f"[MCP23017] Error initializing board at {hex(address)}: {e}")
+
+
+################################################################################
+# 
+################################################################################
 def load_settings():
     global plugin_data
     default = {
@@ -60,15 +105,27 @@ def load_settings():
     except Exception:
         plugin_data = default
         save_settings()
+
+
+################################################################################
+# Save the settings
+################################################################################
 def save_settings():
     with open("./data/mcp23017.json", "w") as f:
         json.dump(plugin_data, f)
+
+
+################################################################################
+# Update all the stations
+################################################################################
 def update_stations(name, **kw):
     load_settings()
     if "boards" not in plugin_data:
         return
     stations = gv.srvals
     total_channels = 0
+
+    # Really should be limiting this to the boards that are relevant?
     for board in plugin_data["boards"]:
         address = board["address"]
         active_level = board.get("active_level", "low")
@@ -102,7 +159,14 @@ def update_stations(name, **kw):
             bus.write_byte_data(address, OLATB, portB)
         except OSError:
             print(f"[MCP23017] Cannot write to board {hex(address)}")
+
+# Signal for zone change
+signal('zone_change').connect(update_stations)
+
+
+################################################################################
 # Initialize all boards on plugin load
+################################################################################
 def initialize_all_boards():
     load_settings()
     if "boards" in plugin_data:
@@ -110,12 +174,17 @@ def initialize_all_boards():
             active_level = board.get("active_level", "low")
             init_board(board["address"], active_level)
     print("[MCP23017] Plugin loaded and boards initialized")
-gv.plugin_menu.append(['MCP23017', '/mcp23017'])
-signal('zone_change').connect(update_stations)
+
+
+################################################################################
+# Web pages
+################################################################################
+
 class settings(ProtectedPage):
     def GET(self):
         load_settings()
         return template_render.mcp23017(settings=plugin_data)
+
 class save_settings_page(ProtectedPage):
     def GET(self):
         qdict = web.input()
@@ -151,9 +220,13 @@ class save_settings_page(ProtectedPage):
         # Re-initialize all boards after settings change
         initialize_all_boards()
         raise web.seeother("/mcp23017")
-urls.extend([
-    '/mcp23017', 'plugins.mcp23017.settings',
-    '/mcp23017-save', 'plugins.mcp23017.save_settings_page'
-])
+
+
+
+################################################################################
 # Initialize boards when plugin loads
+################################################################################
+
 initialize_all_boards()
+
+
