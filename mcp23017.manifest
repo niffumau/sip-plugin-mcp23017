@@ -1,8 +1,8 @@
-Description: Allows the SIP program to use I2C IO extender boards based on the Philips/NXP PCF857x chip.
-Copyright 2021
-Author: Gerard van Seventer
-Email:
-License: GNU GPL 3.0
+Allows the SIP program to use I2C IO extender boards based on the mcp23017 Chip.
+
+This is a 16-BIT I2C expander chip.
+
+Written by niffum
 
 Requirements: I2C must be enabled on the Raspberry PI and smbus lib must be installed 
 
@@ -10,5 +10,8 @@ Requirements: I2C must be enabled on the Raspberry PI and smbus lib must be inst
 
 mcp23017.py plugins
 mcp23017.html templates
+mcp23017.js static/scripts
+mcp23017-docs.html static/docs/plugins
 mcp23017.json data (generated)
 mcp23017.manifest plugins/manifests
+
