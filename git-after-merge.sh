@@ -4,6 +4,7 @@
 
 git checkout dev
 git fetch origin
-git rebase origin/master 
-git push origin dev --force-with-lease
+git merge origin/master
+git push origin dev
+
 
