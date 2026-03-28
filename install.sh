@@ -1,5 +1,10 @@
 #!/bin/bash
+# vim: ts=3 sw=3 sts=3 sr noet
 
+
+print_notice() {
+   echo -en "  \\e[1;34m${1}\\e[0m...\n"
+}
 
 if [[ $(id -u) -gt 0 ]]
 then
@@ -7,29 +12,39 @@ then
     exit
 fi
 
+
 if [ "$#" -ne 1 ]; then
 
-  while true; do
-    #read -p "Enter full path of your SIP installation without trailing slash: " SIPDIR
-    SIPDIR = "/home/niffum/SIP"
+	SIPDIR="/home/niffum/SIP"
 
-        if [[ $SIPDIR = "q" ]] || [[ $SIPDIR = "Q" ]] 
-        then 
-            exit 999
-        fi
-        if test -f "$SIPDIR/sip.py"; then
-            echo "Installing plugin in $SIPDIR"
-            break
-        fi
-        echo "$SIPDIR not found, please try again"
-  done
-
-  else
-    SIPDIR="$1"
+else
+	SIPDIR="$1"
 fi
 
-cp -u *.html $SIPDIR/templates
-cp -u *.py $SIPDIR/plugins
-cp -u *.manifest $SIPDIR/plugins/manifests
+
+# Check if the dir is actually there
+if test -f "$SIPDIR/sip.py"; then
+	echo "Installing plugin in $SIPDIR"
+else
+	print_notice "SIPDIR incorrect"
+	exit
+fi
+
+print_notice "Updating files"
+
+cp -u mcp23017.py $SIPDIR/plugins
+cp -u mcp23017.html $SIPDIR/templates
+cp -u mcp23017.js $SIPDIR/static/scripts
+cp -u mcp23017-docs.html $SIPDIR/static/docs/plugins
+cp -u mcp23017.manifest $SIPDIR/plugins/manifests
+
+
+print_notice "Updating files"
 chmod +x $SIPDIR/plugins/*.py
-echo 'Installation of plugin done'
+
+print_notice "Clearing cache"
+rm $SIPDIR/__pycache__/*
+rm $SIPDIR/plugins/__pycache__/*
+
+print_notice "Installation of plugin done"
+

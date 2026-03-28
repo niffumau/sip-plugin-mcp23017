@@ -1,26 +1,74 @@
 $def with (settings)
-$var title: MCP23017 Settings
-$var page: settings
 
-<h2>MCP23017 Settings</h2>
+$var title: $_('SIP MCP23017 Plugin')
+$var page: MCP23017_plugin
 
-<form action="/mcp23017-save" method="get">
+<script>
+    // Initialize behaviors
+    jQuery(document).ready(function(){
 
-    <p>Board I2C Addresses (hex, e.g. 0x20):</p>
+        jQuery("#cSubmit").click(function() {
+            jQuery("#pluginForm").submit();
+        });
+        jQuery("button#cCancel").click(function(){
+            window.location="/";
+        });
+
+        jQuery("button#docButton").click(function(){
+            window.open("static/docs/plugins/mcp23017-docs.html", "_blank"); 
+        });
+
+    });
+</script>
+
+<div id="plugin">
+    <div class="title">MCP23017 Plugin  <!--Edit: User page heading, Make relevant to your plugin-->
+    <button class="execute" id="docButton" type="button" >$_('Help')</button>
+    </div>
+
+    <p>$_('Board I2C Addresses (hex, e.g. 0x20)')</p>
+    <form id="pluginForm" action="/mcp23017-save" method="get"> <!--Edit: Replace "proto-save" with URL of plugin's class for saving settings-->
+
+        <table class="optionList">
+
+            <!--Check boxes-->
+            <thead>
+                <th class="stationNumber">$_('Board')</th>  <!--Edit: Optional-->
+                <th class="stationNumber">$_('I2C Address')</th>  <!--Edit: Optional-->
+                <th class="stationNumber">$_('Delete')</th>  <!--Edit: Optional-->
+            </thead>
 
     $for i, board in enumerate(settings["boards"]):
-        <div style="margin-bottom:8px;">
-            Board $i:
-            <input type="text" name="addr$i" value="${hex(board['address'])}">
-            Delete:
-            <input type="checkbox" name="del$i">
-        </div>
+        <tr>
+            <td style='text-transform: none;'>Board $i:</td>
+            <td><input type="text" name="addr$i" value="${hex(board['address'])}"></td>
+            <td><input type="checkbox" name="del$i"></td>
+        </tr>
 
-    <hr>
 
-    Add Board:
-    <input type="text" name="newaddr" placeholder="0x23">
+        </table></br>
 
-    <br><br>
-    <input type="submit" value="Save">
-</form>
+        <p>$_('Add Board')</p>  <!--Edit-->
+        <table class="optionList">
+            <!--Text fields-->
+            <thead>
+                <th class="stationNumber">$_('Heading')</th>  <!--Edit: Optional-->
+                <th class="stationNumber">$_('Heading')</th>  <!--Edit: Optional-->
+            </thead>
+
+            <tr>
+                <td style='text-transform: none;'>$_('Add Board'):</td>  <!--Edit-->
+                <td><input type="text" name="newaddr" placeholder="0x23"></td>
+            </tr>
+
+        </table>
+
+    </form>
+
+<div class="controls">
+    <button id="cSubmit" class="submit"><b>$_('Submit')</b></button>
+    <button id="cCancel" class="cancel danger">$_('Cancel')</button>
+</div>
+</div>
+
+
