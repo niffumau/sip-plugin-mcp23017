@@ -10,7 +10,6 @@ Requirements: I2C must be enabled on the Raspberry PI and smbus lib must be inst
 
 mcp23017.py plugins
 mcp23017.html templates
-mcp23017.js static/scripts
 mcp23017-docs.html static/docs/plugins
 mcp23017.json data (generated)
 mcp23017.manifest plugins/manifests
